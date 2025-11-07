@@ -1,0 +1,11 @@
+pyannote.audio==3.1.1
+# Note: pyannote.audio 3.1.1 and speechbrain 1.0.3 have compatibility issues with
+# torchaudio >= 2.1 and numpy >= 2.0. These have been patched in the installed packages.
+groq>=0.11.0
+transformers>=4.38.0
+torch>=2.1.0
+torchaudio>=2.1.0
+soundfile>=0.12.1
+numpy>=1.23
+fastapi>=0.110.0
+uvicorn>=0.28.0

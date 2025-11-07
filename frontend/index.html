@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>AvisoVC · Monitoramento</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin:0; background:#0d1117; color:#e6edf3; }
+      header { padding:16px 20px; border-bottom:1px solid #30363d; }
+      main { display:flex; flex-wrap:wrap; gap:16px; padding:16px; }
+      .panel { background:#161b22; border:1px solid #30363d; border-radius:12px; padding:16px; flex:1 1 320px; }
+      h1 { margin:0; font-size:20px; }
+      h2 { margin-top:0; }
+      button { all:unset; background:#238636; color:white; padding:10px 14px; border-radius:8px; cursor:pointer; font-weight:600; }
+      button:disabled { background:#30363d; cursor:not-allowed; }
+      .status { padding:4px 8px; border-radius:6px; font-weight:600; }
+      .status.idle { background:rgba(96,160,117,.25); }
+      .status.active { background:rgba(56,139,253,.25); }
+      .status.error { background:rgba(255,80,80,.45); }
+      #audio-controls { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+      #transcripts { margin:12px 0 0; padding:0; list-style:none; max-height:240px; overflow:auto; }
+      #transcripts li { padding:10px; border-radius:8px; border:1px solid #30363d; margin-bottom:8px; }
+      #transcripts li span { display:block; font-size:12px; opacity:.7; margin-bottom:4px; }
+      #stage { position:relative; }
+      #video, #canvas { width:100%; height:auto; border-radius:10px; transform: scaleX(-1); }
+      #canvas { position:absolute; inset:0; pointer-events:none; }
+      #hud { display:flex; gap:8px; align-items:center; margin-top:8px; flex-wrap:wrap; }
+      .hint { opacity:.8; font-size:12px; margin-top:6px; }
+      #warning-banner { display:none; position:fixed; top:0; left:0; right:0; background:#dc3545; color:white; padding:16px; text-align:center; font-weight:600; z-index:9999; cursor:pointer; }
+      #warning-banner.active { display:block; animation:pulse 1.5s infinite; }
+      @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+      #calibration-info { margin-top:12px; padding:10px; background:rgba(56,139,253,.15); border-radius:8px; font-size:13px; display:none; }
+      #calibration-info.show { display:block; }
+      #calibration-timer { font-weight:600; font-size:16px; margin-top:6px; }
+    </style>
+  </head>
+  <body>
+    <div id="warning-banner" title="Clique para dispensar">
+      ⚠️ AVISO: Taxa de fala abaixo de 50% do normal · Clique para dispensar
+    </div>
+
+    <header>
+      <h1>AvisoVC · Monitoramento multimodal</h1>
+      <div style="opacity:.7; margin-top:4px; font-size:14px;">Transcrição automática + demo de detecção de assimetria facial (experimental).</div>
+    </header>
+
+    <main>
+      <section class="panel" id="audio-panel">
+        <h2>Escuta ativa (pyannote + Whisper)</h2>
+        <p style="opacity:.8; line-height:1.4;">
+          O navegador captura áudio local, envia em blocos de 1&nbsp;s para a API FastAPI e o serviço roda o pyannote/voice-activity-detection.
+          Quando fala é detectada, gravamos segmentos de áudio (duração definida pela calibração), transcrevemos com Groq API e mostramos o resultado abaixo.
+        </p>
+        <div id="audio-controls">
+          <button id="audio-start">Iniciar microfone</button>
+          <button id="audio-stop" disabled>Parar</button>
+          <button id="calibrate-start">Calibrar</button>
+          <button id="calibrate-finish" disabled>Finalizar calibração</button>
+          <span id="audio-status" class="status idle">Parado</span>
+        </div>
+        <div id="calibration-info">
+          <div id="calibration-status">Calibração não realizada</div>
+          <div id="calibration-timer"></div>
+        </div>
+        <div class="hint">
+          <strong>Dica:</strong> Calibre primeiro para estabelecer sua taxa de fala normal.
+          A duração da calibração define quanto áudio será capturado por segmento (ex: calibração de 8s = segmentos de 8s).
+          Nada é salvo no disco.
+        </div>
+        <ul id="transcripts"></ul>
+      </section>
+
+      <section class="panel" id="stage">
+        <video id="video" playsinline autoplay muted></video>
+        <canvas id="canvas"></canvas>
+        <div id="hud">
+          <button id="start">Iniciar detecção facial</button>
+          <span id="status" class="status idle">Parado</span>
+          <span id="score">Índice: —</span>
+        </div>
+        <div class="hint">
+          Dica: use boa iluminação; mantenha o rosto a ~50–80&nbsp;cm da câmera. Sirva via <code>localhost</code> para liberar webcam.
+        </div>
+      </section>
+
+      <section class="panel" style="max-width:420px">
+        <div style="font-weight:600; margin-bottom:6px;">Como funciona (em 1 parágrafo)</div>
+        <div style="line-height:1.5">
+          A cada frame pegamos os cantos da boca (landmarks 61 e 291) e “desentortamos” a cabeça usando a linha dos olhos (33–263).
+          Se a diferença vertical entre os cantos da boca, normalizada pela distância entre os olhos, salta acima de um limiar e persiste por alguns frames, mostramos <strong>ALERTA</strong>.
+          Há uma breve calibração automática no começo.
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/static/app.js"></script>
+    <script type="module" src="/static/mouth.js"></script>
+  </body>
+</html>
