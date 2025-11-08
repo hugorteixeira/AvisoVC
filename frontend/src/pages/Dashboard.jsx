@@ -2,6 +2,28 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 
+const ActionTile = ({
+  icon,
+  title,
+  variant = '',
+  onClick,
+  disabled
+}) => {
+  const tileClass = ['action-tile', variant].filter(Boolean).join(' ');
+
+  return (
+    <button
+      type="button"
+      className={tileClass}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      <span className="action-tile__icon" aria-hidden="true">{icon}</span>
+      <span className="action-tile__title">{title}</span>
+    </button>
+  );
+};
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user, riskScore, baselineVoice, baselineFace, getRiskLevel, logoutUser } = useApp();
@@ -36,152 +58,167 @@ export default function Dashboard() {
     navigate('/');
   };
 
+  const voiceStatus = baselineVoice ? 'calibrada' : 'pendente';
+  const faceStatus = baselineFace ? 'calibrado' : 'pendente';
+  const profileStatusText = hasProfile ? 'Perfil completo' : 'Complete seu perfil';
+  const profileHelper = hasProfile
+    ? 'Tudo pronto para testes FAST'
+    : 'Calibre voz e rosto para habilitar os testes';
+  const firstName = user?.name
+    ? user.name.trim().split(/\s+/)[0]
+    : 'Usuário';
+
   return (
     <div className="container">
-      {/* Header with User Info */}
-      <div className="card mb-3">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* Hero Section */}
+      <div className="card dashboard-hero hero-compact">
+        <div className="hero-header">
           <div>
-            <h2>Olá, {user?.name || 'Usuário'}!</h2>
-            <p className="text-muted mb-0">Bem-vindo ao Arter.IA</p>
-          </div>
-          <div
-            style={{
-              fontSize: '3rem',
-              opacity: 0.8
-            }}
-          >
-            ❤️
+            <div className="hero-greeting">
+              <span className="hero-greeting__badge">Olá</span>
+              <h1>{firstName}</h1>
+            </div>
+            <p className="text-muted mb-0">
+              <span className="brand-inline">
+                <span className="brand-inline__main">Avisa</span>
+                <span className="brand-inline__accent">VC</span>
+              </span>{' '}
+              está cuidando de você ❤️
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Risk Status Card */}
-      <div
-        className="card mb-3"
-        style={{
-          background: `linear-gradient(135deg, ${riskLevel.color}22 0%, ${riskLevel.color}11 100%)`,
-          borderColor: riskLevel.color
-        }}
-      >
-        <div style={{ textAlign: 'center' }}>
-          <h3 style={{ marginBottom: '8px' }}>Nível de Risco</h3>
-          <div
-            style={{
-              fontSize: '2.5rem',
-              fontWeight: '700',
-              color: riskLevel.color,
-              marginBottom: '8px'
-            }}
-          >
-            {riskLevel.level}
-          </div>
-          <p className="text-muted mb-0">
-            Pontuação: {riskScore}/40 pontos
-          </p>
-          {riskLevel.level === 'ALTO' && (
-            <p className="text-danger mt-2" style={{ fontWeight: '600' }}>
-              ⚠️ Atenção redobrada recomendada
-            </p>
-          )}
-        </div>
-      </div>
+      {/* Main Actions */}
+      <div className="card action-panel highlight-panel">
+        <h3 className="action-panel__title">Atalhos Rápidos</h3>
 
-      {/* Profile Status */}
-      <div className="card mb-3">
-        <h3 style={{ marginBottom: '16px' }}>Status do Perfil</h3>
+        <div className="action-grid">
+          <ActionTile
+            icon="🚨"
+            title="Acionar emergência"
+            variant="danger"
+            onClick={handleEmergencyCall}
+          />
 
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-          <span style={{ fontSize: '1.5rem', marginRight: '12px' }}>
-            {baselineVoice ? '✅' : '⭕'}
-          </span>
-          <div>
-            <strong>Perfil de Voz</strong>
-            <p className="text-muted mb-0">
-              {baselineVoice
-                ? `Baseline: ${baselineVoice.baseline.toFixed(2)} chars/s`
-                : 'Não calibrado'
-              }
-            </p>
-          </div>
-        </div>
+          <ActionTile
+            icon="🧪"
+            title="Iniciar teste FAST"
+            variant="primary"
+            onClick={handleStartTest}
+            disabled={!hasProfile}
+          />
 
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-          <span style={{ fontSize: '1.5rem', marginRight: '12px' }}>
-            {baselineFace ? '✅' : '⭕'}
-          </span>
-          <div>
-            <strong>Perfil Facial</strong>
-            <p className="text-muted mb-0">
-              {baselineFace
-                ? `Baseline: ${baselineFace.mean.toFixed(4)}`
-                : 'Não calibrado'
-              }
-            </p>
-          </div>
-        </div>
-
-        {!hasProfile && (
-          <button
-            className="button purple mt-2"
+          <ActionTile
+            icon="🎯"
+            title="Recalibrar perfil"
+            variant="success"
             onClick={() => navigate('/voice-recording')}
+          />
+        </div>
+      </div>
+
+      {/* Account Utilities */}
+      <div className="card utility-panel hero-utilities">
+        <p className="eyebrow mb-1">Conta</p>
+        <div className="hero-actions">
+          <button
+            className="button outline utility-button"
+            onClick={() => alert('Configurações em desenvolvimento')}
           >
-            CRIAR MEU PERFIL
+            ⚙️ Configurações
           </button>
-        )}
+          <button
+            className="button outline utility-button"
+            onClick={handleSwitchUser}
+          >
+            👥 Trocar Usuário
+          </button>
+        </div>
+      </div>
+
+      {/* Risk & Profile Status */}
+      <div className="card status-panel">
+        <p className="eyebrow mb-1">Monitoramento</p>
+        <h3 style={{ marginBottom: '16px' }}>Como você está hoje</h3>
+        <div className="hero-status-grid">
+          <div
+            className="status-pill"
+            style={{
+              borderColor: riskLevel.color,
+              background: `${riskLevel.color}12`
+            }}
+          >
+            <span className="eyebrow">Nível de risco</span>
+            <strong style={{ color: riskLevel.color }}>{riskLevel.level}</strong>
+            <small>Pontuação {riskScore}/40</small>
+            {riskLevel.level === 'ALTO' && (
+              <p className="text-danger mb-0 mt-1" style={{ fontWeight: 600 }}>
+                ⚠️ Atenção redobrada recomendada
+              </p>
+            )}
+          </div>
+          <div className="status-pill">
+            <span className="eyebrow">Status do perfil</span>
+            <strong>{profileStatusText}</strong>
+            <small>{profileHelper}</small>
+
+            <div className="status-list mt-2">
+              <div className="status-badge">
+                <span className={`status-dot ${baselineVoice ? 'ok' : 'pending'}`} aria-hidden="true"></span>
+                <span>Voz {voiceStatus}</span>
+              </div>
+              <div className="status-badge">
+                <span className={`status-dot ${baselineFace ? 'ok' : 'pending'}`} aria-hidden="true"></span>
+                <span>Rosto {faceStatus}</span>
+              </div>
+            </div>
+
+            {!hasProfile && (
+              <button
+                type="button"
+                className="link-button mt-2"
+                onClick={() => navigate('/voice-recording')}
+              >
+                Configurar agora
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Emergency Contact */}
       {user?.emergencyContact && (
-        <div className="card mb-3 bg-info">
-          <h3 style={{ marginBottom: '8px' }}>Contato de Emergência</h3>
-          <p className="mb-0">
-            <strong>{user.emergencyContact.name}</strong>
-          </p>
-          <p className="text-muted mb-0">
-            {user.emergencyContact.phone}
-          </p>
+        <div className="card contact-card">
+          <div>
+            <p className="eyebrow">Contato de emergência</p>
+            <h3 style={{ marginBottom: '4px' }}>{user.emergencyContact.name}</h3>
+            <p className="text-muted mb-0">{user.emergencyContact.phone}</p>
+          </div>
+          <div className="contact-icon" aria-hidden="true">📞</div>
         </div>
       )}
 
-      {/* Main Actions */}
-      <div style={{ marginTop: '24px' }}>
-        <button
-          className="button large mb-2"
-          style={{
-            background: 'var(--primary-red)',
-            fontSize: '1.2rem',
-            padding: '20px'
-          }}
-          onClick={handleEmergencyCall}
-        >
-          🚨 ACIONAR EMERGÊNCIA
-        </button>
-
-        <button
-          className="button purple large mb-2"
-          onClick={handleStartTest}
-          disabled={!hasProfile}
-        >
-          🧪 INICIAR TESTE FAST
-        </button>
-
-        <button
-          className="button blue large mb-2"
-          onClick={() => navigate('/voice-recording')}
-        >
-          🔄 RECALIBRAR PERFIL
-        </button>
-      </div>
-
       {/* Quick Info */}
-      <div className="card mt-3" style={{ background: 'rgba(255,255,255,0.03)' }}>
+      <div className="card info-card">
         <h3 style={{ marginBottom: '12px' }}>Protocolo FAST</h3>
-        <div style={{ fontSize: '0.9rem' }}>
-          <p className="mb-1"><strong>F</strong>ace (Rosto) - Assimetria facial</p>
-          <p className="mb-1"><strong>A</strong>rms (Braços) - Fraqueza nos braços</p>
-          <p className="mb-1"><strong>S</strong>peech (Fala) - Dificuldade de fala</p>
-          <p className="mb-0"><strong>T</strong>ime (Tempo) - Acionar emergência rápido</p>
+        <div className="fast-grid">
+          <div>
+            <span className="eyebrow">F - Face</span>
+            <p className="mb-0">Observe o rosto e veja se há assimetria.</p>
+          </div>
+          <div>
+            <span className="eyebrow">A - Arms</span>
+            <p className="mb-0">Levante ambos os braços e note fraqueza.</p>
+          </div>
+          <div>
+            <span className="eyebrow">S - Speech</span>
+            <p className="mb-0">Fale uma frase e note dificuldade.</p>
+          </div>
+          <div>
+            <span className="eyebrow">T - Time</span>
+            <p className="mb-0">Se notar algo, acione emergência imediatamente.</p>
+          </div>
         </div>
       </div>
 
@@ -230,23 +267,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Footer with Settings */}
-      <div style={{ marginTop: '32px', textAlign: 'center', display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-        <button
-          className="button outline"
-          onClick={() => alert('Configurações em desenvolvimento')}
-          style={{ fontSize: '0.9rem', padding: '8px 16px' }}
-        >
-          ⚙️ Configurações
-        </button>
-        <button
-          className="button outline"
-          onClick={handleSwitchUser}
-          style={{ fontSize: '0.9rem', padding: '8px 16px' }}
-        >
-          🔄 Trocar Usuário
-        </button>
-      </div>
     </div>
   );
 }

@@ -30,13 +30,17 @@ export default function Welcome() {
   };
 
   return (
-    <div className="container">
+    <div className={`container ${users.length === 0 ? 'welcome-screen' : ''}`}>
       <div className="text-center mb-3">
-        <div className="icon danger">⚕️</div>
-        <h1>Arter.IA</h1>
-        <p style={{ fontSize: '1.25rem', fontWeight: 600 }}>Detecção Precoce de AVC</p>
-        <p className="mb-2" style={{ opacity: 0.8 }}>
-          Sistema inteligente de monitoramento contínuo para sua segurança e tranquilidade
+        <h1 className="brand-title">
+          <span className="brand-title__main">Avisa</span>
+          <span className="brand-title__accent">VC</span>
+        </h1>
+        <p style={{ fontSize: '1.15rem', fontWeight: 700, letterSpacing: '0.02em' }}>
+          Sistema inteligente de monitoramento e pré-triagem
+        </p>
+        <p className="mb-2" style={{ opacity: 0.8, fontWeight: 700 }}>
+          para sua segurança e tranquilidade
         </p>
       </div>
 

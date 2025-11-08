@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import { AudioRecorder, visualizeAudioLevel } from '../utils/audioRecorder';
 import { sendAudioChunk, getCalibrationStatus } from '../utils/api';
+import TestNavigation from '../components/TestNavigation';
 
 export default function TestSpeech() {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export default function TestSpeech() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [warningDetected, setWarningDetected] = useState(false);
+  const [offlineMode, setOfflineMode] = useState(false);
 
   const audioRecorderRef = useRef(null);
   const timerRef = useRef(null);
@@ -39,12 +41,13 @@ export default function TestSpeech() {
 
       sessionIdRef.current = baselineVoice.sessionId;
 
-      // Verify calibration status
-      const calibrationStatus = await getCalibrationStatus(baselineVoice.sessionId);
-      if (!calibrationStatus.calibration_baseline) {
-        setError('Perfil de voz não encontrado');
-        setStatus('error');
-        return;
+      // Verify calibration status (best effort)
+      try {
+        await getCalibrationStatus(baselineVoice.sessionId);
+        setOfflineMode(false);
+      } catch (verifyError) {
+        console.warn('Falha ao verificar perfil de voz. Prosseguindo em modo offline.', verifyError);
+        setOfflineMode(true);
       }
 
       // Initialize audio recorder
@@ -93,7 +96,7 @@ export default function TestSpeech() {
           setTranscription(response.transcript.text);
         }
 
-        if (response.warning) {
+        if (response.warning_active) {
           setWarningDetected(true);
         }
       } catch (err) {
@@ -127,15 +130,23 @@ export default function TestSpeech() {
       // Stop recording
       await audioRecorderRef.current.stopRecording();
 
-      // Get final calibration status
-      const calibrationStatus = await getCalibrationStatus(sessionIdRef.current);
-
       setResult({
-        warningDetected: warningDetected || calibrationStatus.warning_active,
+        warningDetected: warningDetected,
         transcription: transcription,
         baseline: baselineVoice.baseline,
         duration: testDuration,
       });
+
+      // Get final calibration status (best effort)
+      try {
+        const calibrationStatus = await getCalibrationStatus(sessionIdRef.current);
+        setResult((prev) => ({
+          ...prev,
+          warningDetected: prev.warningDetected || calibrationStatus.warning_active
+        }));
+      } catch (err) {
+        console.warn('Não foi possível validar status final do backend. Mantendo dados locais.', err);
+      }
 
       setStatus('result');
     } catch (err) {
@@ -221,7 +232,9 @@ export default function TestSpeech() {
                 em comparação com seu perfil baseline.
               </p>
               <div className="mt-2">
-                <p><strong>Baseline:</strong> {result.baseline.toFixed(2)} caracteres/segundo</p>
+                {typeof result.baseline === 'number' && (
+                  <p><strong>Baseline:</strong> {result.baseline.toFixed(2)} caracteres/segundo</p>
+                )}
                 <p><strong>Duração:</strong> {result.duration.toFixed(1)}s</p>
               </div>
             </>
@@ -232,7 +245,9 @@ export default function TestSpeech() {
                 Sua velocidade de fala está dentro do padrão esperado.
               </p>
               <div className="mt-2">
-                <p><strong>Baseline:</strong> {result.baseline.toFixed(2)} caracteres/segundo</p>
+                {typeof result.baseline === 'number' && (
+                  <p><strong>Baseline:</strong> {result.baseline.toFixed(2)} caracteres/segundo</p>
+                )}
                 <p><strong>Duração:</strong> {result.duration.toFixed(1)}s</p>
               </div>
             </>
@@ -286,6 +301,9 @@ export default function TestSpeech() {
   }
 
   const targetDuration = baselineVoice?.duration || 10;
+  const baselineCharsPerSecond = typeof baselineVoice?.baseline === 'number'
+    ? baselineVoice.baseline
+    : null;
 
   return (
     <div className="container">
@@ -293,21 +311,34 @@ export default function TestSpeech() {
       <p className="text-muted">Protocolo de Detecção de AVC</p>
 
       {status === 'ready' && (
-        <div className="card mt-3">
-          <h3>Instruções</h3>
-          <ul className="text-left">
-            <li>Fale naturalmente por <strong>{targetDuration.toFixed(0)} segundos</strong></li>
-            <li>Use a mesma velocidade de fala da calibração</li>
-            <li>Pode falar sobre qualquer assunto</li>
-            <li>Evite pausas longas</li>
-          </ul>
-          <p className="text-muted mt-2">
-            <em>Exemplo: Descreva o que você fez hoje, fale sobre o clima...</em>
-          </p>
-          <p className="text-muted mt-2">
-            <strong>Baseline:</strong> {baselineVoice.baseline.toFixed(2)} caracteres/segundo
-          </p>
-        </div>
+        <>
+          <div className="card mt-3">
+            <h3>Instruções</h3>
+            <ul className="text-left">
+              <li>Fale naturalmente por <strong>{targetDuration.toFixed(0)} segundos</strong></li>
+              <li>Use a mesma velocidade de fala da calibração</li>
+              <li>Pode falar sobre qualquer assunto</li>
+              <li>Evite pausas longas</li>
+            </ul>
+            <p className="text-muted mt-2">
+              <em>Exemplo: Descreva o que você fez hoje, fale sobre o clima...</em>
+            </p>
+            {baselineCharsPerSecond !== null && (
+              <p className="text-muted mt-2">
+                <strong>Baseline:</strong> {baselineCharsPerSecond.toFixed(2)} caracteres/segundo
+              </p>
+            )}
+          </div>
+
+          {offlineMode && (
+            <div className="card mt-3 bg-info">
+              <p className="mb-0">
+                <strong>ℹ️ Modo offline:</strong> Não conseguimos validar seu perfil no servidor,
+                mas você pode continuar usando o padrão salvo no dispositivo.
+              </p>
+            </div>
+          )}
+        </>
       )}
 
       {status === 'testing' && (
@@ -366,9 +397,12 @@ export default function TestSpeech() {
 
       {status === 'ready' && (
         <>
-          <button className="button purple mt-3" onClick={handleStartTest}>
+        <div className="test-start-row mt-3">
+          <button className="button purple" onClick={handleStartTest}>
             🎤 INICIAR TESTE DE FALA
           </button>
+        </div>
+        <TestNavigation currentTest="speech" />
           <button className="button white mt-2" onClick={() => navigate('/test-arm-left')}>
             VOLTAR
           </button>

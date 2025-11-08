@@ -1,4 +1,4 @@
-# Arter.IA - Guia de Construção do Frontend
+# AvisaVC - Guia de Construção do Frontend
 
 ## Estrutura de Pastas
 

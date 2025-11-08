@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import { FaceDetector, drawLandmarks } from '../utils/faceDetection';
+import TestNavigation from '../components/TestNavigation';
 
 export default function TestFacial() {
   const navigate = useNavigate();
@@ -300,8 +301,8 @@ export default function TestFacial() {
       // Skip to results attention
       navigate('/results-attention');
     } else {
-      // Continue to next test
-      navigate('/test-arm-right');
+      // Continue to speech test
+      navigate('/test-speech');
     }
   };
 
@@ -412,6 +413,9 @@ export default function TestFacial() {
             <button className="button mt-3" onClick={() => navigate('/results-attention')}>
               ACIONAR EMERGÊNCIA
             </button>
+            <button className="button green mt-2" onClick={handleContinue}>
+              CONTINUAR PARA TESTE DE FALA
+            </button>
             <button className="button white mt-2" onClick={handleRetry}>
               REFAZER TESTE
             </button>
@@ -419,7 +423,7 @@ export default function TestFacial() {
         ) : (
           <>
             <button className="button green mt-3" onClick={handleContinue}>
-              CONTINUAR PARA PRÓXIMO TESTE (2/4)
+              CONTINUAR PARA TESTE DE FALA
             </button>
             <button className="button white mt-2" onClick={handleRetry}>
               REFAZER TESTE
@@ -444,21 +448,6 @@ export default function TestFacial() {
     <div className="container">
       <h1>Teste FAST 1/4 - Face (Rosto)</h1>
       <p className="text-muted">Protocolo de Detecção de AVC</p>
-
-      {status === 'ready' && (
-        <div className="card mt-3">
-          <h3>Instruções</h3>
-          <ul className="text-left">
-            <li><strong>Sorria</strong> para a câmera</li>
-            <li>Mantenha o sorriso por <strong>10 segundos</strong></li>
-            <li>O sistema irá detectar se há assimetria facial</li>
-            <li>Mantenha o rosto centralizado</li>
-          </ul>
-          <p className="text-muted mt-2">
-            <em>Um sorriso assimétrico pode indicar fraqueza muscular facial</em>
-          </p>
-        </div>
-      )}
 
       <div className="video-container mt-3">
         <video
@@ -557,9 +546,12 @@ export default function TestFacial() {
 
       {status === 'ready' && (
         <>
-          <button className="button purple mt-3" onClick={handleStartTest}>
-            😊 INICIAR TESTE FACIAL
-          </button>
+          <div className="test-start-row mt-3">
+            <button className="button purple" onClick={handleStartTest}>
+              😊 INICIAR TESTE FACIAL
+            </button>
+          </div>
+          <TestNavigation currentTest="face" />
           <button className="button white mt-2" onClick={() => navigate('/dashboard')}>
             CANCELAR
           </button>

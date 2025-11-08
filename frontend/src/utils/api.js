@@ -97,19 +97,80 @@ export async function dismissWarning(sessionId) {
   return response.json();
 }
 
+let sharedAudioContext = null;
+
+async function getAudioContext() {
+  if (typeof window === 'undefined') {
+    throw new Error('AudioContext is not available in this environment.');
+  }
+  if (!sharedAudioContext) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) {
+      throw new Error('AudioContext API não suportada neste navegador.');
+    }
+    sharedAudioContext = new AudioContextClass();
+  }
+  if (sharedAudioContext.state === 'suspended') {
+    await sharedAudioContext.resume();
+  }
+  return sharedAudioContext;
+}
+
+function floatTo16BitPCM(float32Array) {
+  const buffer = new ArrayBuffer(float32Array.length * 2);
+  const view = new DataView(buffer);
+  let offset = 0;
+  for (let i = 0; i < float32Array.length; i++, offset += 2) {
+    let s = Math.max(-1, Math.min(1, float32Array[i]));
+    s = s < 0 ? s * 0x8000 : s * 0x7fff;
+    view.setInt16(offset, s, true);
+  }
+  return buffer;
+}
+
+function arrayBufferToBase64(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode.apply(null, chunk);
+  }
+  return btoa(binary);
+}
+
+async function blobToPcmPayload(audioBlob) {
+  const arrayBuffer = await audioBlob.arrayBuffer();
+  const audioContext = await getAudioContext();
+  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer.slice(0));
+  const channelData = audioBuffer.getChannelData(0);
+  const pcmBuffer = floatTo16BitPCM(channelData);
+  const samplesBase64 = arrayBufferToBase64(pcmBuffer);
+  return {
+    samples: samplesBase64,
+    sampleRate: audioBuffer.sampleRate,
+  };
+}
+
 /**
  * Send audio chunk to backend for processing
  * @param {string} sessionId
  * @param {Blob} audioBlob
- * @returns {Promise<{warning: boolean, transcript: object|null}>}
+ * @returns {Promise<{warning_active: boolean, transcript: object|null}>}
  */
 export async function sendAudioChunk(sessionId, audioBlob) {
-  const formData = new FormData();
-  formData.append('audio', audioBlob, 'audio.wav');
+  const { samples, sampleRate } = await blobToPcmPayload(audioBlob);
 
-  const response = await fetch(`${API_BASE_URL}/api/audio-chunk/${sessionId}`, {
+  const response = await fetch(`${API_BASE_URL}/api/audio-chunk`, {
     method: 'POST',
-    body: formData,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      session_id: sessionId,
+      sample_rate: sampleRate,
+      samples,
+    }),
   });
 
   if (!response.ok) {

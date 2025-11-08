@@ -28,15 +28,15 @@ class TranscriptionResult:
 
 
 class WhisperTranscriber:
-    """Transcriber using Groq API with whisper-large-v3-turbo for better Portuguese support."""
+    """Transcriber using Groq API with whisper-large-v3 for better Portuguese support."""
 
-    def __init__(self, groq_api_key: str, model: str = "whisper-large-v3-turbo") -> None:
+    def __init__(self, groq_api_key: str, model: str = "whisper-large-v3") -> None:
         """
         Initialize Groq-based transcriber.
 
         Args:
             groq_api_key: Groq API key for authentication
-            model: Groq model to use (default: whisper-large-v3-turbo)
+            model: Groq model to use (default: whisper-large-v3)
         """
         self.client = Groq(api_key=groq_api_key)
         self.model = model

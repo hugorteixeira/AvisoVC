@@ -1,4 +1,4 @@
-# 🚀 Como Rodar o Arter.IA
+# 🚀 Como Rodar o AvisaVC
 
 ## 📋 Pré-requisitos
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import { AudioRecorder, visualizeAudioLevel } from '../utils/audioRecorder';
-import { createSession, startCalibration, finishCalibration } from '../utils/api';
+import { createSession, startCalibration, finishCalibration, sendAudioChunk } from '../utils/api';
 
 export default function VoiceRecording() {
   const navigate = useNavigate();
@@ -55,7 +55,7 @@ export default function VoiceRecording() {
       // Start calibration on backend
       await startCalibration(sessionId);
 
-      // Start recording
+      // Start recording (chunks will be sent when stopping)
       audioRecorderRef.current.startRecording();
       setStatus('recording');
       setRecordingTime(0);
@@ -108,19 +108,32 @@ export default function VoiceRecording() {
     setStatus('processing');
 
     try {
-      // Stop recording
+      // Stop recording and send captured audio to backend
       const audioBlob = await audioRecorderRef.current.stopRecording();
+      await sendAudioChunk(sessionId, audioBlob);
 
       // Finish calibration on backend
       const result = await finishCalibration(sessionId);
 
-      setCalibrationResult(result);
+      const derivedDuration = result?.duration ?? recordingTime;
+      const derivedBaseline =
+        typeof result?.baseline === 'number' && Number.isFinite(result.baseline)
+          ? result.baseline
+          : (result?.text?.length || 0) / (derivedDuration || 1);
+
+      const normalizedResult = {
+        ...result,
+        duration: derivedDuration,
+        baseline: derivedBaseline,
+      };
+
+      setCalibrationResult(normalizedResult);
 
       // Save to context
       setBaselineVoice({
-        baseline: result.baseline,
-        duration: result.duration,
-        text: result.text,
+        baseline: derivedBaseline,
+        duration: derivedDuration,
+        text: result?.text ?? '',
         sessionId: sessionId,
       });
 
@@ -157,6 +170,51 @@ export default function VoiceRecording() {
     }
   };
 
+  const renderRecordingPanel = () => (
+    <div className="card bg-recording mt-3">
+      {status === 'recording' ? (
+        <>
+          <div className="recording-indicator">
+            <span className="recording-dot"></span>
+            GRAVANDO
+          </div>
+
+          <div className="timer">
+            {recordingTime.toFixed(1)}s
+          </div>
+
+          <div className="audio-visualizer">
+            <div className="audio-bars">
+              {visualizeAudioLevel(audioLevel)}
+            </div>
+            <p className="text-muted mt-2">Nível: {audioLevel.toFixed(0)}%</p>
+          </div>
+
+          <div className="mt-3">
+            <div className="progress-bar">
+              <div
+                className="progress-fill"
+                style={{ width: `${Math.min(100, (recordingTime / 20) * 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-muted mt-1">
+              {recordingTime < 5
+                ? `Mínimo: 5s (faltam ${(5 - recordingTime).toFixed(1)}s)`
+                : `Máximo: 20s (faltam ${(20 - recordingTime).toFixed(1)}s)`
+              }
+            </p>
+          </div>
+        </>
+      ) : (
+        <div className="text-center">
+          <div className="icon" style={{ fontSize: '3rem', marginBottom: '12px' }}>🎙️</div>
+          <p className="mb-1" style={{ fontWeight: 600 }}>Pronto para gravar</p>
+          <p className="text-muted mb-0">Clique em "Iniciar gravação" para começar.</p>
+        </div>
+      )}
+    </div>
+  );
+
   // Render different states
   if (status === 'init') {
     return (
@@ -181,6 +239,8 @@ export default function VoiceRecording() {
   }
 
   if (status === 'complete' && calibrationResult) {
+    const calibrationDuration = calibrationResult.duration ?? recordingTime;
+    const calibrationBaseline = calibrationResult.baseline ?? 0;
     return (
       <div className="container">
         <div className="icon success">✓</div>
@@ -189,9 +249,11 @@ export default function VoiceRecording() {
         <div className="card mt-3">
           <h3>Resultados da Calibração</h3>
           <div className="mt-2">
-            <p><strong>Duração:</strong> {calibrationResult.duration.toFixed(1)}s</p>
-            <p><strong>Velocidade de Fala:</strong> {calibrationResult.baseline.toFixed(2)} caracteres/segundo</p>
-            <p className="text-muted mt-2"><em>"{calibrationResult.text}"</em></p>
+            <p><strong>Duração:</strong> {calibrationDuration.toFixed(1)}s</p>
+            <p><strong>Velocidade de Fala:</strong> {calibrationBaseline.toFixed(2)} caracteres/segundo</p>
+            {calibrationResult.text && (
+              <p className="text-muted mt-2"><em>"{calibrationResult.text}"</em></p>
+            )}
           </div>
         </div>
 
@@ -223,21 +285,23 @@ export default function VoiceRecording() {
       <h1>Calibração de Voz</h1>
       <p className="text-muted">Etapa 1 de 2 - Criação do Perfil</p>
 
-      <div className="card mt-3">
-        <h3>Instruções</h3>
-        <ul className="text-left">
-          <li>Fale naturalmente por <strong>5 a 20 segundos</strong></li>
-          <li>Mantenha uma velocidade de fala normal</li>
-          <li>Evite pausas longas</li>
-          <li>Pode falar sobre qualquer assunto</li>
-        </ul>
-        <p className="text-muted mt-2">
-          <em>Exemplo: Descreva seu dia, fale sobre o clima, conte uma história...</em>
-        </p>
-      </div>
+      {(status === 'ready' || status === 'recording') && renderRecordingPanel()}
 
       {status === 'ready' && (
         <>
+          <div className="card mt-3">
+            <h3>Instruções</h3>
+            <ul className="text-left">
+              <li>Fale naturalmente por <strong>5 a 20 segundos</strong></li>
+              <li>Mantenha uma velocidade de fala normal</li>
+              <li>Evite pausas longas</li>
+              <li>Pode falar sobre qualquer assunto</li>
+            </ul>
+            <p className="text-muted mt-2">
+              <em>Exemplo: Descreva seu dia, fale sobre o clima, conte uma história...</em>
+            </p>
+          </div>
+
           <button className="button purple mt-3" onClick={handleStartRecording}>
             🎤 INICIAR GRAVAÇÃO
           </button>
@@ -248,48 +312,13 @@ export default function VoiceRecording() {
       )}
 
       {status === 'recording' && (
-        <div className="mt-3">
-          <div className="card bg-recording">
-            <div className="recording-indicator">
-              <span className="recording-dot"></span>
-              GRAVANDO
-            </div>
-
-            <div className="timer">
-              {recordingTime.toFixed(1)}s
-            </div>
-
-            <div className="audio-visualizer">
-              <div className="audio-bars">
-                {visualizeAudioLevel(audioLevel)}
-              </div>
-              <p className="text-muted mt-2">Nível: {audioLevel.toFixed(0)}%</p>
-            </div>
-
-            <div className="mt-3">
-              <div className="progress-bar">
-                <div
-                  className="progress-fill"
-                  style={{ width: `${Math.min(100, (recordingTime / 20) * 100)}%` }}
-                ></div>
-              </div>
-              <p className="text-muted mt-1">
-                {recordingTime < 5
-                  ? `Mínimo: 5s (faltam ${(5 - recordingTime).toFixed(1)}s)`
-                  : `Máximo: 20s (faltam ${(20 - recordingTime).toFixed(1)}s)`
-                }
-              </p>
-            </div>
-          </div>
-
-          <button
-            className="button mt-3"
-            onClick={handleStopRecording}
-            disabled={recordingTime < 5}
-          >
-            ⏹️ PARAR GRAVAÇÃO {recordingTime >= 5 ? '(Pronto!)' : '(Aguarde...)'}
-          </button>
-        </div>
+        <button
+          className="button mt-3"
+          onClick={handleStopRecording}
+          disabled={recordingTime < 5}
+        >
+          ⏹️ PARAR GRAVAÇÃO {recordingTime >= 5 ? '(Pronto!)' : '(Aguarde...)'}
+        </button>
       )}
 
       {status === 'processing' && (

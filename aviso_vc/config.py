@@ -14,7 +14,7 @@ class Settings:
     segment_duration: float = 5.0
     output_dir: Path = Path("speech_segments")
     vad_model_id: str = "pyannote/voice-activity-detection"
-    groq_model: str = "whisper-large-v3-turbo"
+    groq_model: str = "whisper-large-v3"
     hf_token_env_var: str = "HF_TOKEN"
     groq_api_key_env_var: str = "GROQ_API_KEY"
     whisper_task: str = "translate"  # Kept for backward compatibility, not used with Groq

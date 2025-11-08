@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Script para iniciar o Arter.IA
+# Script para iniciar o AvisaVC
 # Frontend React + Backend FastAPI
 
-echo "🚀 Iniciando Arter.IA..."
+echo "🚀 Iniciando AvisaVC..."
 echo ""
 
 # Cores para output
@@ -38,8 +38,15 @@ if [ -z "$HF_TOKEN" ]; then
     fi
 fi
 
-# Verificar se o ambiente virtual existe
-if [ ! -d "/home/hugorteixeira/venv_avisovc" ]; then
+VENV_LOCAL="./venv_avisovc"
+VENV_GLOBAL="/home/hugorteixeira/venv_avisovc"
+
+# Verificar se o ambiente virtual existe (local ou global)
+if [ -d "$VENV_LOCAL" ]; then
+    VENV_PATH="$VENV_LOCAL"
+elif [ -d "$VENV_GLOBAL" ]; then
+    VENV_PATH="$VENV_GLOBAL"
+else
     echo -e "${RED}❌ Ambiente virtual não encontrado!${NC}"
     echo "Crie com: python -m venv venv_avisovc"
     exit 1
@@ -77,7 +84,7 @@ trap cleanup SIGINT SIGTERM
 
 # Iniciar Backend
 echo -e "${BLUE}🐍 Iniciando Backend...${NC}"
-source venv_avisovc/bin/activate
+source "$VENV_PATH/bin/activate"
 python run_backend.py > logs/backend.log 2>&1 &
 BACKEND_PID=$!
 echo -e "${GREEN}✅ Backend iniciado (PID: $BACKEND_PID)${NC}"
@@ -86,21 +93,26 @@ echo ""
 
 # Aguardar backend iniciar
 echo -e "${YELLOW}⏳ Aguardando backend inicializar...${NC}"
-sleep 3
 
-# Verificar se o backend está rodando
-if ! kill -0 $BACKEND_PID 2>/dev/null; then
-    echo -e "${RED}❌ Erro ao iniciar backend!${NC}"
-    echo "Verifique os logs em: logs/backend.log"
-    cat logs/backend.log
-    exit 1
-fi
+BACKEND_READY=false
+for i in {1..15}; do
+    if ! kill -0 $BACKEND_PID 2>/dev/null; then
+        echo -e "${RED}❌ Backend finalizou inesperadamente!${NC}"
+        echo "Verifique os logs em: logs/backend.log"
+        cat logs/backend.log
+        exit 1
+    fi
 
-# Testar se o backend está respondendo
-if curl -s http://localhost:8000 > /dev/null 2>&1; then
-    echo -e "${GREEN}✅ Backend respondendo!${NC}"
-else
-    echo -e "${YELLOW}⚠️  Backend pode não estar pronto ainda${NC}"
+    if curl -sf http://localhost:8000/healthz > /dev/null 2>&1; then
+        BACKEND_READY=true
+        echo -e "${GREEN}✅ Backend respondendo!${NC}"
+        break
+    fi
+    sleep 1
+done
+
+if [ "$BACKEND_READY" = false ]; then
+    echo -e "${YELLOW}⚠️  Backend ainda não confirmou readiness (verifique logs)${NC}"
 fi
 echo ""
 
@@ -114,7 +126,7 @@ echo -e "${GREEN}✅ Frontend iniciado (PID: $FRONTEND_PID)${NC}"
 echo "   Logs: logs/frontend.log"
 echo ""
 
-echo -e "${GREEN}🎉 Arter.IA está rodando!${NC}"
+echo -e "${GREEN}🎉 AvisaVC está rodando!${NC}"
 echo ""
 echo -e "${BLUE}📱 Acesse: http://localhost:3000${NC}"
 echo ""

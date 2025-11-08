@@ -1,4 +1,4 @@
-# ✅ Status da Implementação - Arter.IA
+# ✅ Status da Implementação - AvisaVC
 
 ## 🎉 TODAS AS FUNCIONALIDADES IMPLEMENTADAS!
 
@@ -275,7 +275,7 @@ Data: 07/11/2024
 
 ## 🚀 Pronto para Uso!
 
-O aplicativo **Arter.IA** está **100% funcional** e pronto para testes!
+O aplicativo **AvisaVC** está **100% funcional** e pronto para testes!
 
 ### Como rodar:
 
@@ -313,7 +313,7 @@ export HF_TOKEN="seu_token"
 
 **TODAS AS FUNCIONALIDADES FORAM IMPLEMENTADAS COM SUCESSO!**
 
-O Arter.IA agora possui:
+O AvisaVC agora possui:
 - ✅ Sistema completo de cadastro
 - ✅ Avaliação de risco de AVC
 - ✅ Calibração de voz e facial

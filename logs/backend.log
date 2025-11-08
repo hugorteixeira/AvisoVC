@@ -10,7 +10,7 @@
   warnings.warn(message, RuntimeWarning)
 /home/hugorteixeira/venv_avisovc/lib/python3.13/site-packages/pytorch_lightning/utilities/migration/migration.py:208: You have multiple `ModelCheckpoint` callback states in this checkpoint, but we found state keys that would end up colliding with each other after an upgrade, which means we can't differentiate which of your checkpoint callbacks needs which states. At least one of your `ModelCheckpoint` callbacks will not be able to reload the state.
 Lightning automatically upgraded your loaded checkpoint from v1.1.3 to v2.5.6. To apply the upgrade to your files permanently, run `python -m pytorch_lightning.utilities.upgrade_checkpoint ../.cache/torch/pyannote/models--pyannote--segmentation/snapshots/059e96f964841d40f1a5e755bb7223f76666bba4/pytorch_model.bin`
-INFO:     Started server process [17790]
+INFO:     Started server process [73935]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
@@ -27,21 +27,88 @@ Press Ctrl+C to stop the server
 ============================================================
 Model was trained with pyannote.audio 0.0.1, yours is 3.1.1. Bad things might happen unless you revert pyannote.audio to 0.x.
 Model was trained with torch 1.7.1, yours is 2.9.0+cu128. Bad things might happen unless you revert torch to 1.x.
-INFO:     127.0.0.1:48754 - "POST /api/session HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48760 - "POST /api/session HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48754 - "OPTIONS /api/calibration/7899cfe9-4d09-4de5-85d8-7cc03e549b4e/start HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48760 - "POST /api/calibration/7899cfe9-4d09-4de5-85d8-7cc03e549b4e/start HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46332 - "OPTIONS /api/calibration/7899cfe9-4d09-4de5-85d8-7cc03e549b4e/finish HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46332 - "POST /api/calibration/7899cfe9-4d09-4de5-85d8-7cc03e549b4e/finish HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37190 - "POST /api/session HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37206 - "POST /api/session HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37190 - "OPTIONS /api/calibration/eb5338c6-9f5f-4476-bac8-8cffb3d4d7a0/start HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37206 - "POST /api/calibration/eb5338c6-9f5f-4476-bac8-8cffb3d4d7a0/start HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36212 - "OPTIONS /api/calibration/eb5338c6-9f5f-4476-bac8-8cffb3d4d7a0/finish HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36212 - "POST /api/calibration/eb5338c6-9f5f-4476-bac8-8cffb3d4d7a0/finish HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59764 - "POST /api/session HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59780 - "POST /api/session HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59764 - "OPTIONS /api/calibration/54752d7a-ef90-4c64-80b9-1afd54967c10/start HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59780 - "POST /api/calibration/54752d7a-ef90-4c64-80b9-1afd54967c10/start HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60574 - "OPTIONS /api/calibration/54752d7a-ef90-4c64-80b9-1afd54967c10/finish HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60574 - "POST /api/calibration/54752d7a-ef90-4c64-80b9-1afd54967c10/finish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46512 - "GET /healthz HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38694 - "OPTIONS /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38704 - "OPTIONS /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38704 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38694 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38704 - "OPTIONS /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38694 - "POST /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38706 - "POST /api/audio-chunk HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38706 - "OPTIONS /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/finish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38706 - "POST /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/finish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38706 - "POST /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33598 - "POST /api/audio-chunk HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33598 - "POST /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/finish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49026 - "POST /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36302 - "POST /api/audio-chunk HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36302 - "POST /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/finish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36358 - "GET /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36358 - "GET /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36360 - "POST /api/audio-chunk HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41810 - "GET /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54018 - "POST /api/audio-chunk HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44570 - "GET /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45558 - "GET /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45558 - "GET /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51638 - "GET /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51638 - "GET /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45338 - "GET /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45338 - "GET /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47592 - "GET /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47592 - "GET /api/calibration/81c821c7-4730-448e-a813-68785585ce7c/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35542 - "OPTIONS /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35542 - "OPTIONS /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35552 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35542 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35552 - "OPTIONS /api/calibration/bfb0f215-64d9-4f7b-b580-2961daddc1f1/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35542 - "POST /api/calibration/bfb0f215-64d9-4f7b-b580-2961daddc1f1/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56934 - "POST /api/calibration/bfb0f215-64d9-4f7b-b580-2961daddc1f1/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58686 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58686 - "OPTIONS /api/calibration/2083c8ad-7a30-4f9a-b411-94cdbfc7a11e/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58686 - "POST /api/calibration/2083c8ad-7a30-4f9a-b411-94cdbfc7a11e/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46396 - "OPTIONS /api/audio-chunk HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46396 - "POST /api/audio-chunk HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46396 - "OPTIONS /api/calibration/2083c8ad-7a30-4f9a-b411-94cdbfc7a11e/finish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46396 - "POST /api/calibration/2083c8ad-7a30-4f9a-b411-94cdbfc7a11e/finish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39102 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39100 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39102 - "OPTIONS /api/calibration/34fe69d3-0a10-44ca-b24f-e313dfd21fa8/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39100 - "POST /api/calibration/34fe69d3-0a10-44ca-b24f-e313dfd21fa8/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41290 - "POST /api/audio-chunk HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41290 - "OPTIONS /api/calibration/34fe69d3-0a10-44ca-b24f-e313dfd21fa8/finish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41290 - "POST /api/calibration/34fe69d3-0a10-44ca-b24f-e313dfd21fa8/finish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59842 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33580 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33582 - "OPTIONS /api/calibration/c017aad4-b197-4e63-ae15-5e194b581656/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33582 - "POST /api/calibration/c017aad4-b197-4e63-ae15-5e194b581656/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56124 - "POST /api/audio-chunk HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56124 - "OPTIONS /api/calibration/c017aad4-b197-4e63-ae15-5e194b581656/finish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56124 - "POST /api/calibration/c017aad4-b197-4e63-ae15-5e194b581656/finish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37006 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37022 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37006 - "OPTIONS /api/calibration/c0d4acf8-87a0-449a-abb8-b740455a13ef/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37022 - "POST /api/calibration/c0d4acf8-87a0-449a-abb8-b740455a13ef/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42264 - "POST /api/audio-chunk HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42264 - "OPTIONS /api/calibration/c0d4acf8-87a0-449a-abb8-b740455a13ef/finish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42264 - "POST /api/calibration/c0d4acf8-87a0-449a-abb8-b740455a13ef/finish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48366 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37336 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37336 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51440 - "OPTIONS /api/calibration/ba308e86-60fc-416f-9b58-1e9d79eb9450/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51440 - "POST /api/calibration/ba308e86-60fc-416f-9b58-1e9d79eb9450/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51454 - "POST /api/audio-chunk HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51454 - "OPTIONS /api/calibration/ba308e86-60fc-416f-9b58-1e9d79eb9450/finish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51454 - "POST /api/calibration/ba308e86-60fc-416f-9b58-1e9d79eb9450/finish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60908 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60924 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40182 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40198 - "POST /api/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40182 - "OPTIONS /api/calibration/2be9ec75-976c-4504-9442-1ebaa63d4480/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40198 - "POST /api/calibration/2be9ec75-976c-4504-9442-1ebaa63d4480/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37066 - "POST /api/audio-chunk HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37066 - "OPTIONS /api/calibration/2be9ec75-976c-4504-9442-1ebaa63d4480/finish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37066 - "POST /api/calibration/2be9ec75-976c-4504-9442-1ebaa63d4480/finish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52184 - "GET /api/calibration/2be9ec75-976c-4504-9442-1ebaa63d4480/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52184 - "GET /api/calibration/2be9ec75-976c-4504-9442-1ebaa63d4480/status HTTP/1.1" 200 OK

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import TestNavigation from '../components/TestNavigation';
 
 export default function TestArmRight() {
   const navigate = useNavigate();
@@ -72,9 +73,12 @@ export default function TestArmRight() {
           </p>
         </div>
 
-        <button className="button purple large mt-3" onClick={startTest}>
-          💪 INICIAR TESTE
-        </button>
+        <div className="test-start-row mt-3">
+          <button className="button purple" onClick={startTest}>
+            💪 INICIAR TESTE
+          </button>
+        </div>
+        <TestNavigation currentTest="arm-right" />
 
         <button className="button white mt-2" onClick={() => navigate('/test-facial')}>
           VOLTAR

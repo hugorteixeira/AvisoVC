@@ -1,8 +1,8 @@
-# Arter.IA - Aplicativo de Detecção Precoce de AVC
+# AvisaVC - Aplicativo de Detecção Precoce de AVC
 
 ## 🎉 O Que Foi Criado
 
-Criei a estrutura completa do frontend React para o **Arter.IA**, integrando as funcionalidades existentes de calibração de voz e detecção facial.
+Criei a estrutura completa do frontend React para o **AvisaVC**, integrando as funcionalidades existentes de calibração de voz e detecção facial.
 
 ### ✅ Arquivos Criados
 
@@ -293,4 +293,4 @@ npm start
 
 Depois implemente seguindo a ordem em `IMPLEMENTATION_ROADMAP.md`!
 
-**Boa sorte com o Arter.IA! 💪❤️**
+**Boa sorte com o AvisaVC! 💪❤️**

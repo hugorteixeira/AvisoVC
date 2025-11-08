@@ -1,4 +1,4 @@
-# Arter.IA - Detecção Precoce de AVC 🏥
+# AvisaVC - Detecção Precoce de AVC 🏥
 
 Sistema inteligente de detecção e monitoramento de sinais de AVC usando IA, com frontend React moderno e backend FastAPI.
 

@@ -1,4 +1,4 @@
-# ✅ Integração Completa - Arter.IA
+# ✅ Integração Completa - AvisaVC
 
 ## 🎉 O Que Foi Integrado
 
@@ -307,7 +307,7 @@ Alert se > threshold
 
 **TODAS as funcionalidades principais de voz e detec\u00e7\u00e3o facial foram integradas com sucesso!**
 
-O aplicativo Arter.IA agora possui:
+O aplicativo AvisaVC agora possui:
 - ✅ Sistema completo de calibra\u00e7\u00e3o de voz com Groq API
 - ✅ Sistema completo de detec\u00e7\u00e3o facial com MediaPipe
 - ✅ Testes FAST funcionais (Face e Speech)
